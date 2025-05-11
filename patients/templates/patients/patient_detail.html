@@ -1,0 +1,213 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block title %}Patient Detail{% endblock %}
+{% block content %}
+<style>
+  .tab-wrap {
+    margin-top: 2rem;
+  }
+  .tab-buttons {
+    display: flex;
+    gap: 1px;
+  }
+  .tab-buttons input[type="radio"] {
+    display: none;
+  }
+  .tab-buttons label {
+    flex: 1;
+    padding: 12px;
+    background: #e8491d;
+    color: #fff;
+    font-weight: 500;
+    text-align: center;
+    cursor: pointer;
+    border-top-left-radius: 0.3rem;
+    border-top-right-radius: 0.3rem;
+    transition: background 0.3s ease;
+  }
+  .tab-buttons input[type="radio"]:checked + label {
+    background: #c83f19;
+  }
+  .tab-content {
+    display: none;
+    background: #f8f9fa;
+    padding: 1rem;
+    border: 1px solid #dee2e6;
+    border-top: none;
+    border-radius: 0 0 0.3rem 0.3rem;
+  }
+  .tab-section {
+    border: 1px solid #ddd;
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background: #fff;
+    margin-bottom: 1rem;
+  }
+  .edit-btn {
+    display: inline-block;
+    margin-top: 0.5rem;
+    background-color: #e8491d;
+    color: white;
+    border: none;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    text-decoration: none;
+  }
+  .edit-btn:hover {
+    background-color: #c83f19;
+  }
+</style>
+
+<div class="container mt-5">
+  <div class="card shadow p-4 mb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="mb-0">{{ patient.name }}</h2>
+        <p class="text-muted mb-1">Age: {{ patient.age }} | Email: {{ patient.email }}</p>
+        <p class="text-muted">Joined: {{ patient.created_at|date:"M d, Y" }}</p>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <form action="{% url 'patients:edit_patient' patient.id %}" method="get" class="d-inline">
+          <button type="submit" class="btn btn-outline-danger btn-sm">Edit Patient</button>
+          <a href="{% url 'patients:patient_pdf' patient.id %}" class="btn btn-outline-dark btn-sm">Download PDF</a>
+<!-- Delete Button -->
+<button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal">
+  Delete
+</button>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded shadow-sm"> {# Bootstrap class 'rounded' and 'shadow-sm' are fine #}
+      <div class="modal-header bg-danger text-white"> {# Bootstrap background and text color utilities #}
+        <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <strong>{{ patient.name }}</strong>?<br>
+        This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <form method="post" action="{% url 'patients:delete_patient' patient.id %}" class="d-inline">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger btn-sm">Yes, Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+    <div class="tab-wrap">
+      <div class="tab-buttons">
+        <input type="radio" name="tabs" id="tab1" checked><label for="tab1">Medical History</label>
+        <input type="radio" name="tabs" id="tab2"><label for="tab2">Clinical Data</label>
+        <input type="radio" name="tabs" id="tab3"><label for="tab3">Appointments</label>
+        <input type="radio" name="tabs" id="tab4"><label for="tab4">Prescriptions</label>
+        <input type="radio" name="tabs" id="tab5"><label for="tab5">Documents</label>
+        <input type="radio" name="tabs" id="tab6"><label for="tab6">Follow-Ups</label>
+      </div>
+
+      <div id="tab-contents">
+        <div class="tab-content" id="content-tab1">
+          {% for item in medical_history %}
+          <div class="tab-section">
+            <p><strong>Diagnoses:</strong> {{ item.diagnoses }}</p>
+            <p><strong>Allergies:</strong> {{ item.allergies }}</p>
+            <p><strong>Immunizations:</strong> {{ item.immunizations }}</p>
+            <p><strong>Family History:</strong> {{ item.family_history }}</p>
+            <p><strong>Surgeries:</strong> {{ item.surgeries }}</p>
+          </div>
+          {% empty %}<p class="text-muted">No medical history available.</p>{% endfor %}
+          <a href="{% url 'patients:edit_medical_history' patient.id %}" class="edit-btn">Edit</a>
+        </div>
+
+        <div class="tab-content" id="content-tab2">
+          {% for item in clinical_data %}
+          <div class="tab-section">
+            <p><strong>Blood Pressure:</strong> {{ item.blood_pressure }}</p>
+            <p><strong>Heart Rate:</strong> {{ item.heart_rate }}</p>
+            <p><strong>Weight:</strong> {{ item.weight }} kg</p>
+            <p><strong>Lab Results:</strong> {{ item.lab_results }}</p>
+            <div class="text-end"><small class="text-muted">{{ item.created_at|date:"M d, Y H:i" }}</small></div>
+          </div>
+          {% empty %}<p class="text-muted">No clinical data recorded.</p>{% endfor %}
+          <a href="{% url 'patients:edit_clinical_data' patient.id %}" class="edit-btn">Edit</a>
+        </div>
+
+        <div class="tab-content" id="content-tab3">
+          {% for item in appointments %}
+          <div class="tab-section">
+            <p><strong>Doctor:</strong> {{ item.doctor_name }}</p>
+            <p><strong>Date:</strong> {{ item.appointment_date }}</p>
+            <p><strong>Reason:</strong> {{ item.reason_for_visit }}</p>
+          </div>
+          {% empty %}<p class="text-muted">No appointments yet.</p>{% endfor %}
+          <a href="{% url 'patients:edit_appointments' patient.id %}" class="edit-btn">Edit</a>
+        </div>
+
+        <div class="tab-content" id="content-tab4">
+          {% for item in prescriptions %}
+          <div class="tab-section">
+            <p><strong>Medication:</strong> {{ item.medication }}</p>
+            <p><strong>Dosage:</strong> {{ item.dosage }}</p>
+            <p><strong>Period:</strong> {{ item.start_date }} → {{ item.end_date }}</p>
+            <p><strong>Instructions:</strong> {{ item.instructions }}</p>
+          </div>
+          {% empty %}<p class="text-muted">No prescriptions recorded.</p>{% endfor %}
+          <a href="{% url 'patients:edit_prescriptions' patient.id %}" class="edit-btn">Edit</a>
+        </div>
+
+        <div class="tab-content" id="content-tab5">
+          {% for item in documents %}
+          <div class="tab-section d-flex flex-row justify-content-between align-items-center">
+            <div><strong>{{ item.title }}</strong></div>
+            <div>
+              <a href="{{ item.file.url }}" class="btn btn-sm btn-outline-secondary">Download</a>
+              <span class="ms-2 text-muted">{{ item.uploaded_at|date:"M d, Y" }}</span>
+            </div>
+          </div>
+          {% empty %}<p class="text-muted">No documents uploaded.</p>{% endfor %}
+          <a href="{% url 'patients:edit_documents' patient.id %}" class="edit-btn">Edit</a>
+        </div>
+
+        <div class="tab-content" id="content-tab6">
+          {% for item in followups %}
+          <div class="tab-section">
+            <p><strong>{{ item.follow_up_date|date:"M d, Y H:i" }}</strong></p>
+            <p>{{ item.notes }}</p>
+          </div>
+          {% empty %}<p class="text-muted">No follow-ups yet.</p>{% endfor %}
+          <a href="{% url 'patients:edit_follow_up' patient.id %}" class="edit-btn">Edit</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <a href="{% url 'patients:patient_list' %}" class="btn btn-secondary">&larr; Back to Patient List</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const radios = document.querySelectorAll(".tab-buttons input[type='radio']");
+    const tabs = document.querySelectorAll(".tab-content");
+
+    function showTab(id) {
+      tabs.forEach((tab) => tab.style.display = "none");
+      const active = document.getElementById("content-" + id);
+      if (active) active.style.display = "block";
+    }
+
+    radios.forEach((radio) => {
+      radio.addEventListener("change", function () {
+        if (this.checked) showTab(this.id);
+      });
+      if (radio.checked) showTab(radio.id);
+    });
+  });
+</script>
+{% endblock %}

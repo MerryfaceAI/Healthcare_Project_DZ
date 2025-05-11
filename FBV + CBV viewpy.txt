@@ -1,0 +1,318 @@
+# patients/views.py
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import (Patient, 
+                     MedicalHistory, 
+                     ClinicalData, 
+                     Appointment, 
+                     Prescription, 
+                     Document)
+from .forms import (PatientForm, 
+                    MedicalHistoryForm, 
+                    ClinicalDataForm, 
+                    AppointmentForm, 
+                    PrescriptionForm, 
+                    DocumentForm, 
+                    FollowUpForm)
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+from django.contrib.auth.decorators import permission_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
+from django.views import View
+
+@permission_required('patients.view_patient')
+def patient_list(request):
+    patients = Patient.objects.all()
+    return render(request, 'patients/patient_list.html', {'patients': patients})
+
+class PatientListView(PermissionRequiredMixin, ListView):
+    model = Patient
+    template_name = 'patients/patient_list.html'
+    context_object_name = 'patients'
+    permission_required = 'patients.view_patient'
+    login_url = 'login'  # Redirect to login if not authenticated
+    redirect_field_name = 'redirect_to'  # Redirect to this field after login   
+    
+@permission_required('patients.change_patient')
+def add_patient(request):
+    if request.method == 'POST':
+        form = PatientForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('patients:patient_list')
+    else:
+        form = PatientForm()
+    return render(request, 'patients/add_patient.html', {'form': form})
+
+class PatientCreateView(PermissionRequiredMixin, CreateView):
+    model = Patient
+    form_class = PatientForm
+    template_name = 'patients/add_patient.html'
+    success_url = reverse_lazy('patients:patient_list')
+    permission_required = 'patients.change_patient'
+    login_url = 'login'  # Redirect to login if not authenticated
+    redirect_field_name = 'redirect_to'  # Redirect to this field after login   
+
+@permission_required('patients.view_patient')
+def patient_detail(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    medical_history = patient.medical_histories.first()
+    clinical_data = patient.clinical_data.order_by('-created_at').first()
+    appointments = patient.appointments.order_by('-appointment_date')
+    prescriptions = patient.prescriptions.order_by('-start_date')
+    documents = patient.documents.all()
+    return render(request, 'patients/patient_detail.html', {
+        'patient': patient,
+        'medical_history': medical_history,
+        'clinical_data': clinical_data,
+        'appointments': appointments,
+        'prescriptions': prescriptions,
+        'documents': documents,
+    })
+
+#gotta do the patient_detail view Class-Based Views later
+
+@permission_required('patients.change_patient')
+def edit_patient(request, id):
+    patient = get_object_or_404(Patient, id=id)
+    if request.method == 'POST':
+        form = PatientForm(request.POST, instance=patient)
+        if form.is_valid():
+            form.save()
+            return redirect('patients:patient_list')
+    else:
+        form = PatientForm(instance=patient)
+    return render(request, 'patients/edit_patient.html', {'form': form, 'patient': patient})
+
+class PatientUpdateView(PermissionRequiredMixin, UpdateView):
+    model = Patient
+    form_class = PatientForm
+    template_name = 'patients/edit_patient.html'
+    success_url = reverse_lazy('patients:patient_list')
+    permission_required = 'patients.change_patient'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['patient'] = self.object
+        return context
+
+@permission_required('patients.change_patient')
+def delete_patient(request, id):
+    patient = get_object_or_404(Patient, id=id)
+    patient.delete()
+    return HttpResponseRedirect(reverse('patients:patient_list'))
+
+class PatientDeleteView(PermissionRequiredMixin, DeleteView):
+    model = Patient
+    success_url = reverse_lazy('patients:patient_list')
+    permission_required = 'patients.change_patient'
+    template_name = 'patients/confirm_delete.html'  # create this template
+
+def edit_medical_history(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    try:
+        history = patient.medical_histories.get()
+    except MedicalHistory.DoesNotExist:
+        history = None
+
+    if request.method == 'POST':
+        form = MedicalHistoryForm(request.POST, instance=history)
+        if form.is_valid():
+            medical_history = form.save(commit=False)
+            medical_history.patient = patient
+            medical_history.save()
+            return redirect('patients:patient_detail', patient_id=patient.id)
+    else:
+        form = MedicalHistoryForm(instance=history)
+
+    return render(request, 'patients/edit_medical_history.html', {'form': form, 'patient': patient})
+
+class EditMedicalHistoryView(View):
+    template_name = 'patients/edit_medical_history.html'
+    form_class = MedicalHistoryForm
+
+    def get(self, request, patient_id):
+        patient = get_object_or_404(Patient, id=patient_id)
+        history = patient.medical_histories.first()
+        form = self.form_class(instance=history)
+        return render(request, self.template_name, {'form': form, 'patient': patient})
+
+    def post(self, request, patient_id):
+        patient = get_object_or_404(Patient, id=patient_id)
+        history = patient.medical_histories.first()
+        form = self.form_class(request.POST, instance=history)
+        if form.is_valid():
+            medical_history = form.save(commit=False)
+            medical_history.patient = patient
+            medical_history.save()
+            return redirect('patients:patient_detail', patient_id=patient.id)
+        return render(request, self.template_name, {'form': form, 'patient': patient})
+    
+def edit_clinical_data(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    clinical_data = ClinicalData.objects.filter(patient=patient).first()
+    if request.method == 'POST':
+        form = ClinicalDataForm(request.POST, instance=clinical_data)
+        if form.is_valid():
+            form.save()
+            return redirect('patients:patient_detail', patient_id=patient.id)
+    else:
+        form = ClinicalDataForm(instance=clinical_data)
+    return render(request, 'patients/edit_clinical_data.html', {'form': form, 'patient': patient})
+
+class EditClinicalDataView(View):
+    template_name = 'patients/edit_clinical_data.html'
+    form_class = ClinicalDataForm
+
+    def get(self, request, patient_id):
+        patient = get_object_or_404(Patient, id=patient_id)
+        clinical_data = ClinicalData.objects.filter(patient=patient).first()
+        form = self.form_class(instance=clinical_data)
+        return render(request, self.template_name, {'form': form, 'patient': patient})
+
+    def post(self, request, patient_id):
+        patient = get_object_or_404(Patient, id=patient_id)
+        clinical_data = ClinicalData.objects.filter(patient=patient).first()
+        form = self.form_class(request.POST, instance=clinical_data)
+        if form.is_valid():
+            clinical_data = form.save(commit=False)
+            clinical_data.patient = patient
+            clinical_data.save()
+            return redirect('patients:patient_detail', patient_id=patient.id)
+        return render(request, self.template_name, {'form': form, 'patient': patient})
+
+def edit_appointments(request, patient_id):
+    patient = get_object_or_404(Patient,id=patient_id)
+    appointments = patient.appointments.all()
+
+    if request.method == 'POST':
+        # Example: Update a single appointment (add logic for multiple appointments as needed)
+        appointment = get_object_or_404(Appointment, id=request.POST.get('appointment_id'))
+        form = AppointmentForm(request.POST, instance=appointment)
+        if form.is_valid():
+            form.save()
+            return redirect('patients:patient_detail', patient_id=patient.id)
+    else:
+        form = AppointmentForm()
+
+    return render(request, 'patients/edit_appointments.html', {'form': form, 'patient': patient})
+
+class EditAppointmentsView(View):
+    template_name = 'patients/edit_appointments.html'
+    form_class = AppointmentForm
+
+    def get(self, request, patient_id):
+        patient = get_object_or_404(Patient, id=patient_id)
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form, 'patient': patient})
+
+    def post(self, request, patient_id):
+        patient = get_object_or_404(Patient, id=patient_id)
+        appointment = get_object_or_404(Appointment, id=request.POST.get('appointment_id'))
+        form = self.form_class(request.POST, instance=appointment)
+        if form.is_valid():
+            form.save()
+            return redirect('patients:patient_detail', patient_id=patient.id)
+        return render(request, self.template_name, {'form': form, 'patient': patient})
+
+def edit_prescriptions(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    prescriptions = patient.prescriptions.all()
+
+    if request.method == 'POST':
+        prescription = get_object_or_404(Prescription, id=request.POST.get('prescription_id'))
+        form = PrescriptionForm(request.POST, instance=prescription)
+        if form.is_valid():
+            form.save()
+            return redirect('patients:patient_detail', patient_id=patient.id)
+    else:
+        form = PrescriptionForm()
+
+    return render(request, 'patients/edit_prescriptions.html', {'form': form, 'patient': patient})
+
+class EditPrescriptionsView(View):
+    template_name = 'patients/edit_prescriptions.html'
+    form_class = PrescriptionForm
+
+    def get(self, request, patient_id):
+        patient = get_object_or_404(Patient, id=patient_id)
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form, 'patient': patient})
+
+    def post(self, request, patient_id):
+        patient = get_object_or_404(Patient, id=patient_id)
+        prescription = get_object_or_404(Prescription, id=request.POST.get('prescription_id'))
+        form = self.form_class(request.POST, instance=prescription)
+        if form.is_valid():
+            form.save()
+            return redirect('patients:patient_detail', patient_id=patient.id)
+        return render(request, self.template_name, {'form': form, 'patient': patient})
+
+def edit_documents(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    documents = patient.documents.all()
+
+    if request.method == 'POST':
+        document = get_object_or_404(Document, id=request.POST.get('document_id'))
+        form = DocumentForm(request.POST, request.FILES, instance=document)
+        if form.is_valid():
+            form.save()
+            return redirect('patients:patient_detail', patient_id=patient.id)
+    else:
+        form = DocumentForm()
+
+    return render(request, 'patients/edit_documents.html', {'form': form, 'patient': patient})
+
+class EditDocumentsView(View):
+    template_name = 'patients/edit_documents.html'
+    form_class = DocumentForm
+
+    def get(self, request, patient_id):
+        patient = get_object_or_404(Patient, id=patient_id)
+        form = self.form_class()
+        return render(request, self.template_name, {'form': form, 'patient': patient})
+
+    def post(self, request, patient_id):
+        patient = get_object_or_404(Patient, id=patient_id)
+        document = get_object_or_404(Document, id=request.POST.get('document_id'))
+        form = self.form_class(request.POST, request.FILES, instance=document)
+        if form.is_valid():
+            form.save()
+            return redirect('patients:patient_detail', patient_id=patient.id)
+        return render(request, self.template_name, {'form': form, 'patient': patient})
+
+def edit_follow_up(request, patient_id):
+    patient = get_object_or_404(Patient, id=patient_id)
+    follow_up = patient.follow_ups.first()  # Get the first follow-up (modify if you allow multiple follow-ups)
+
+    if request.method == 'POST':
+        form = FollowUpForm(request.POST, instance=follow_up)
+        if form.is_valid():
+            form.save()
+            return redirect('patients:patient_detail', patient_id=patient.id)
+    else:
+        form = FollowUpForm(instance=follow_up)
+
+    return render(request, 'patients/edit_follow_up.html', {'form': form, 'patient': patient})
+
+class EditFollowUpView(View):
+    template_name = 'patients/edit_follow_up.html'
+    form_class = FollowUpForm
+
+    def get(self, request, patient_id):
+        patient = get_object_or_404(Patient, id=patient_id)
+        follow_up = patient.follow_ups.first()
+        form = self.form_class(instance=follow_up)
+        return render(request, self.template_name, {'form': form, 'patient': patient})
+
+    def post(self, request, patient_id):
+        patient = get_object_or_404(Patient, id=patient_id)
+        follow_up = patient.follow_ups.first()
+        form = self.form_class(request.POST, instance=follow_up)
+        if form.is_valid():
+            follow_up = form.save(commit=False)
+            follow_up.patient = patient
+            follow_up.save()
+            return redirect('patients:patient_detail', patient_id=patient.id)
+        return render(request, self.template_name, {'form': form, 'patient': patient})

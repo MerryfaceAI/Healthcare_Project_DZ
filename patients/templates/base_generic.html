@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Healthcare ERP{% endblock %}</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+
+  {# Link to your custom CSS file if it contains base styles you want to keep AFTER Bootstrap #}
+  {# For example, if your 'patients/styles.css' or the inline styles below should override Bootstrap #}
+  <style>
+    /* Basic Reset & Core Styles (from your previous base_generic.html) */
+    body {
+      font-family: Arial, sans-serif; /* Your specified font */
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4; /* Your specified background color */
+      color: #333; /* Default text color */
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Your custom .container style - Bootstrap also has one. Ensure no major conflicts or choose one. */
+    /* For this example, I'll keep yours but be mindful of Bootstrap's .container behavior */
+    .container-custom { /* Renamed to avoid direct conflict for demonstration */
+      width: 90%;
+      margin: auto;
+      overflow: hidden;
+      padding: 0 20px;
+    }
+
+    /* Header (from your previous base_generic.html) */
+    header.custom-header { /* Added class to differentiate if needed */
+      background-color: #35424a;
+      color: white;
+      padding: 15px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    header.custom-header .container-custom { /* Use your custom container */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header.custom-header #logo h1 { margin: 0; font-size: 1.8em; }
+    header.custom-header #logo a { color: white; text-decoration: none; }
+    header.custom-header nav ul { padding: 0; margin: 0; list-style: none; display: flex; }
+    header.custom-header nav ul li { margin-left: 20px; }
+    header.custom-header nav ul li a { color: white; text-decoration: none; font-weight: bold; padding: 8px 15px; border-radius: 4px; transition: background-color 0.3s ease; }
+    header.custom-header nav ul li a:hover,
+    header.custom-header nav ul li a.current { background-color: #e8491d; }
+
+    .main-wrapper { flex: 1; padding: 25px 0; }
+
+    /* Footer (from your previous base_generic.html) */
+    footer.custom-footer { /* Added class */
+      background-color: #35424a;
+      color: white;
+      text-align: center;
+      padding: 20px 0;
+    }
+    footer.custom-footer p { margin: 5px 0; }
+    footer.custom-footer a { color: #e8491d; text-decoration: none; }
+    footer.custom-footer a:hover { text-decoration: underline; }
+
+    /* Your existing tab content, card, button styles from base_generic CAN GO HERE */
+    /* Or be in a separate CSS file linked AFTER Bootstrap CSS */
+    /* For example: */
+    .content-area {
+      background: #ffffff;
+      padding: 25px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-radius: 5px;
+    }
+     .content-area h2, .content-area h3 {
+        margin-top: 0;
+        color: #35424a;
+        border-bottom: 2px solid #e8491d;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    /* Add other necessary styles from your previous base_generic.html here */
+
+  </style>
+  {% block head_extra %}{% endblock %} {# For page-specific styles #}
+</head>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<body>
+  <header class="custom-header"> {# Use specific class if you have custom header styling #}
+    <div class="container-custom"> {# Or use Bootstrap's container/container-fluid #}
+      <div id="logo">
+        <h1><a href="{% url 'patients:patient_list' %}">Healthcare ERP</a></h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="{% url 'patients:patient_list' %}" class="{% if request.resolver_match.url_name == 'patient_list' %}current{% endif %}">Patients</a></li>
+          {# Add other nav links #}
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="main-wrapper">
+    {# Use Bootstrap's container for content area if desired, or your custom one #}
+    <main class="container"> {# This will now use Bootstrap's container styling #}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <footer class="custom-footer"> {# Use specific class if you have custom footer styling #}
+    <div class="container"> {# Bootstrap container for footer content alignment #}
+      <p>© {% now "Y" %} Healthcare ERP. All Rights Reserved.</p>
+      <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a> | <a href="#">Help/Support</a></p>
+    </div>
+  </footer>
+
+  <!-- Bootstrap Bundle with Popper -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+
+  {# Your custom tab script from base_generic.html #}
+  <script>
+    // Your existing tab script can go here if it doesn't conflict
+    // or place it in a page-specific block if needed
+  </script>
+  {% block scripts_extra %}{% endblock %} {# For page-specific scripts #}
+</body>
+</html>

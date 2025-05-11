@@ -1,0 +1,28 @@
+<!-- Global base_generic.html -->
+<!-- If you see this, it's using the global one. -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}My Healthcare App{% endblock %}</title>
+</head>
+<body>
+    <header>
+        <h1>Healthcare Application</h1>
+        <nav>
+            <ul>
+                <li><a href="{% url 'patients:patient_list' %}">Patient List</a></li>
+
+            </ul>
+        </nav>
+    </header>
+
+    <div id="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <footer>
+        <p>© 2025 Healthcare App</p>
+    </footer>
+</body>
+</html>

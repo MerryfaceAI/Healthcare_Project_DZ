@@ -1,0 +1,5 @@
+Homepage (if you add one): http://127.0.0.1:8000/
+
+Patient list: http://127.0.0.1:8000/patients/
+
+Admin panel: http://127.0.0.1:8000/admin/
