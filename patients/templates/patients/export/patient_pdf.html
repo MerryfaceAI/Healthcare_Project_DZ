@@ -1,21 +1,57 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Patient PDF</title>
+    <title>Patient Report - {{ patient.first_name }} {{ patient.last_name }}</title>
     <style>
-        body { font-family: sans-serif; }
-        h1 { color: #e8491d; }
+        body { font-family: Arial, sans-serif; font-size: 12px; line-height: 1.6; }
+        h1, h2, h3 { border-bottom: 1px solid #ccc; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        th, td { border: 1px solid #ddd; padding: 8px; }
+        .section { margin-bottom: 20px; }
     </style>
 </head>
 <body>
-    <h1>{{ patient.name }}</h1>
-    <p><strong>Age:</strong> {{ patient.age }}</p>
-    <p><strong>Email:</strong> {{ patient.email }}</p>
-    <hr>
-    <h3>Medical History</h3>
-    {% for item in medical_history %}
-        <p><strong>Diagnoses:</strong> {{ item.diagnoses }}</p>
-    {% endfor %}
+    <h1>Patient Summary Report</h1>
+
+    <div class="section">
+        <h2>Personal Information</h2>
+        <p><strong>MRN:</strong> {{ patient.medical_record_number }}</p>
+        <p><strong>Name:</strong> {{ patient.first_name }} {{ patient.last_name }}</p>
+        <p><strong>DOB:</strong> {{ patient.date_of_birth }}</p>
+        <p><strong>Gender:</strong> {{ patient.get_gender_display }}</p>
+    </div>
+
+    <div class="section">
+        <h2>Contact Details</h2>
+        <p><strong>Phone:</strong> {{ patient.contact.phone }}</p>
+        <p><strong>Email:</strong> {{ patient.contact.email }}</p>
+        <p><strong>Address:</strong> {{ patient.address.line1 }}, {{ patient.address.city }}, {{ patient.address.country }}</p>
+    </div>
+
+    <div class="section">
+        <h2>Insurance Info</h2>
+        <p><strong>Provider:</strong> {{ patient.insurance.provider }}</p>
+        <p><strong>Policy #:</strong> {{ patient.insurance.policy_number }}</p>
+        <p><strong>Valid Until:</strong> {{ patient.insurance.valid_until }}</p>
+    </div>
+
+    <div class="section">
+        <h2>Medical Conditions</h2>
+        {% for condition in patient.condition_set.all %}
+            <p>- {{ condition.name }} ({{ condition.onset_date }})</p>
+        {% empty %}
+            <p>No recorded conditions.</p>
+        {% endfor %}
+    </div>
+
+    <div class="section">
+        <h2>Medications</h2>
+        {% for med in patient.prescription_set.all %}
+            <p>{{ med.medication }} — {{ med.dosage }} ({{ med.start_date }} to {{ med.end_date }})</p>
+        {% empty %}
+            <p>No prescriptions recorded.</p>
+        {% endfor %}
+    </div>
 </body>
 </html>

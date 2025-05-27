@@ -1,0 +1,4 @@
+Django>=5.2
+WeasyPrint>=61.2
+Faker>=24.8.0
+Pillow>=10.2.0

@@ -1,6 +1,6 @@
 # patients/models/core.py
 from django.db import models
-
+from django.conf import settings
 
 class Address(models.Model):
     line1 = models.CharField(max_length=255)
@@ -37,7 +37,12 @@ class Patient(models.Model):
         ('O', 'Other'),
         ('U', 'Unknown'),
     ]
-
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='patient_profile')
     medical_record_number = models.CharField(max_length=30, unique=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)

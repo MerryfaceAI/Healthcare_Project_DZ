@@ -1,153 +1,79 @@
-{% extends 'base_generic.html' %}
+{% extends "base_generic.html" %}
 {% load static %}
 
-{% block title %}Patient List - Healthcare ERP{% endblock %}
-
 {% block content %}
-<div class="content-area"> {# Assuming this class from your base_generic.html for main content styling #}
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">Patient Management</h2>
-    <a href="{% url 'patients:add_patient' %}" class="btn btn-primary" style="background-color: #e8491d; border-color: #e8491d;">
-      <i class="fas fa-plus me-2"></i>Add New Patient {# Example using Font Awesome if you have it, otherwise just text #}
-    </a>
+<div class="container mt-4">
+  <h2>📋 Patient Registry</h2>
+  <hr>
+
+  <!-- Filter/Search Bar -->
+  <form method="get" class="mb-4 row g-3">
+    <div class="col-md-4">
+      <input type="text" name="search_name" class="form-control" placeholder="Search by name..." value="{{ request.GET.search_name }}">
+    </div>
+    <div class="col-md-4">
+      <input type="text" name="search_id" class="form-control" placeholder="Medical Record #" value="{{ request.GET.search_id }}">
+    </div>
+    <div class="col-md-2">
+      <select name="page_size" class="form-select">
+        {% for size in [10, 25, 50, 100] %}
+          <option value="{{ size }}" {% if request.GET.page_size == size|stringformat:"s" %}selected{% endif %}>{{ size }} per page</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-2">
+      <button type="submit" class="btn btn-primary w-100">Search</button>
+    </div>
+  </form>
+
+  <!-- Patient Table -->
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover">
+      <thead class="table-light">
+        <tr>
+          <th>MRN</th>
+          <th>Name</th>
+          <th>DOB</th>
+          <th>Gender</th>
+          <th>Contact</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for patient in patients %}
+        <tr>
+          <td>{{ patient.medical_record_number }}</td>
+          <td>{{ patient.first_name }} {{ patient.last_name }}</td>
+          <td>{{ patient.date_of_birth }}</td>
+          <td>{{ patient.get_gender_display }}</td>
+          <td>{{ patient.contact.phone }}</td>
+          <td>
+            <a href="{% url 'patients:patient_detail' patient.pk %}" class="btn btn-sm btn-info">View</a>
+            <a href="{% url 'patients:edit_patient' patient.pk %}" class="btn btn-sm btn-secondary">Edit</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center">No patients found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 
-  {# Optional: Search/Filter Bar - Placeholder #}
-  <div class="card shadow-sm mb-4">
-    <div class="card-body">
-      <form class="row g-3 align-items-center" method="get">
-        <div class="col-md-4">
-          <input type="text" name="search_name" value="{{ search_name }}" class="form-control form-control-sm" placeholder="Search by Name">
-        </div>
-        <div class="col-md-3">
-          <input type="text" name="search_email" value="{{ search_email }}" class="form-control form-control-sm" placeholder="Search by Email">
-        </div>
-        <div class="col-md-3">
-          <select name="filter_age" class="form-select form-select-sm">
-            <option value="" {% if not filter_age %}selected{% endif %} disabled>Filter by Age Group...</option>
-            <option value="all" {% if filter_age == 'all' %}selected{% endif %}>All</option>
-            <option value="0-18" {% if filter_age == '0-18' %}selected{% endif %}>0–18</option>
-            <option value="19-40" {% if filter_age == '19-40' %}selected{% endif %}>19–40</option>
-            <option value="41-65" {% if filter_age == '41-65' %}selected{% endif %}>41–65</option>
-            <option value="65+" {% if filter_age == '65+' %}selected{% endif %}>65+</option>
-          </select>
-        </div>
-        <div class="col-md-2 d-grid">
-          <button type="button" id="reset-btn" class="btn btn-outline-dark btn-sm">Reset</button>
-        </div>
-      </form>            
-    </div>
-  </div>
-
-  <div class="card shadow-sm">
-    <div class="card-header" style="background-color: #f8f9fa;"> {# Light background for card header #}
-      <h5 class="mb-0">Current Patients</h5>
-    </div>
-    <div class="card-body p-0"> {# Remove padding from card-body if table is full width #}
-      {% if patients %}
-        <div class="table-responsive">
-          <div id="patient-table">
-            {% include 'patients/includes/patient_table.html' %}
-          </div>          
-        </div>
-      {% else %}
-        <div class="card-body text-center">
-          <i class="fas fa-user-slash fa-3x text-muted mb-3"></i> {# Icon for no patients #}
-          <p class="text-muted">No patients found in the system.</p>
-          <p>You can start by adding a new patient.</p>
-          <a href="{% url 'patients:add_patient' %}" class="btn btn-primary mt-2" style="background-color: #e8491d; border-color: #e8491d;">Add New Patient</a>
-        </div>
+  <!-- Pagination -->
+  <nav>
+    <ul class="pagination justify-content-center">
+      {% if patients.has_previous %}
+        <li class="page-item"><a class="page-link" href="?page={{ patients.previous_page_number }}&{{ request.GET.urlencode }}">Previous</a></li>
       {% endif %}
-    </div>
 
-    {% if patients and page_obj %} {# Basic Pagination Placeholder - Assumes Django's Paginator is used #}
-    <div class="card-footer bg-light" id="pagination-container">
-      <nav aria-label="Patient list navigation">
-        <ul class="pagination justify-content-center mb-0">
-          {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page=1">« First</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a></li>
-          {% endif %}
-        </ul>
-      </nav>
-    </div>
-    {% endif %}
+      <li class="page-item active"><span class="page-link">{{ patients.number }}</span></li>
 
-  </div>
+      {% if patients.has_next %}
+        <li class="page-item"><a class="page-link" href="?page={{ patients.next_page_number }}&{{ request.GET.urlencode }}">Next</a></li>
+      {% endif %}
+    </ul>
+  </nav>
 </div>
-{% endblock %}  {# Close block content #}
-
-{% block scripts_extra %}
-{# If you use Font Awesome, ensure it's linked in your base_generic.html or here #}
-<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> -->
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script> -->
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    const fields = ['search_name', 'search_email', 'filter_age'];
-    const patientTable = document.getElementById('patient-table');
-  
-    function collectParams() {
-      const params = new URLSearchParams();
-      fields.forEach(name => {
-        const el = document.querySelector(`[name="${name}"]`);
-        if (el && el.value) params.set(name, el.value);
-      });
-  
-      const sizeEl = document.getElementById('itemsPerPage');
-      if (sizeEl) {
-        params.set("page_size", document.getElementById("itemsPerPage").value);
-      }
-  
-      return params;
-    }
-  
-    function loadPatients(params) {
-      fetch(`?${params.toString()}`, {
-        headers: { 'X-Requested-With': 'XMLHttpRequest' }
-      })
-      .then(res => res.json())
-      .then(data => {
-        patientTable.innerHTML = data.html;
-      });
-    }
-  
-    const debounce = (fn, delay = 500) => {
-      let timer;
-      return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => fn(...args), delay);
-      };
-    };
-  
-    const update = debounce(() => {
-      const params = collectParams();
-      loadPatients(params);
-    });
-  
-    fields.forEach(name => {
-      const el = document.querySelector(`[name="${name}"]`);
-      if (el) {
-        const eventType = el.tagName === 'SELECT' ? 'change' : 'input';
-        el.addEventListener(eventType, update);
-      }
-    });
-  
-    document.addEventListener('change', function (e) {
-      if (e.target.id === 'itemsPerPage') {
-        update();
-      }
-    });
-  
-    document.addEventListener('click', function (e) {
-      const link = e.target.closest('.pagination a');
-      if (link) {
-        e.preventDefault();
-        const url = new URL(link.href);
-        const params = collectParams();
-        params.set('page', url.searchParams.get('page'));
-        loadPatients(params);
-      }
-    });
-  });
-  </script>
 {% endblock %}

@@ -1,11 +1,52 @@
-{% extends 'base_generic.html' %}
+{% extends "base_generic.html" %}
+{% load static %}
 
 {% block content %}
-  <h2>Edit Patient: {{ patient.name }}</h2>
+<div class="container mt-4">
+  <h2>📝 Edit Patient: {{ patient.first_name }} {{ patient.last_name }}</h2>
+  <hr>
+
   <form method="post">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save Changes</button>
-    <a href="{% url 'patients:patient_list' %}"><button type="button">Cancel</button></a>
+    <div class="card mb-4">
+      <div class="card-header">🧍 Patient Info</div>
+      <div class="card-body">
+        {{ patient_form.as_p }}
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">📞 Contact Info</div>
+      <div class="card-body">
+        {{ contact_form.as_p }}
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">🏠 Address</div>
+      <div class="card-body">
+        {{ address_form.as_p }}
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">🚑 Emergency Contact</div>
+      <div class="card-body">
+        {{ emergency_form.as_p }}
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">💳 Insurance</div>
+      <div class="card-body">
+        {{ insurance_form.as_p }}
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-primary">💾 Save Changes</button>
+      <a href="{% url 'patients:patient_detail' patient.pk %}" class="btn btn-secondary">Cancel</a>
+    </div>
   </form>
+</div>
 {% endblock %}

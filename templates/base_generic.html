@@ -1,27 +1,116 @@
 <!-- Global base_generic.html -->
-<!-- If you see this, it's using the global one. -->
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>{% block title %}My Healthcare App{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    <header>
-        <h1>Healthcare Application</h1>
-        <nav>
-            <ul>
-                <li><a href="{% url 'patients:patient_list' %}">Patient List</a></li>
-
+    <header class="bg-gray-100 p-4 flex items-center justify-between">
+        <div>
+            <h1 class="text-2xl font-bold">Healthcare Application</h1>
+        </div>
+        <nav class="flex items-center">
+            <ul class="flex space-x-4">
+                <li><a href="{% url 'patients:patient_list' %}" class="text-blue-600 hover:underline">Patient List</a></li>
             </ul>
+
+            {% if user.is_authenticated %}
+            <!-- Notification Bell & Dropdown -->
+            <div id="notification-root" class="relative inline-block ml-6">
+              <button id="notif-toggle" class="focus:outline-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <span id="notif-count" class="absolute top-0 right-0 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full" style="display:none;"></span>
+              </button>
+              <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg overflow-hidden z-50">
+                <ul id="notif-list" class="divide-y divide-gray-200 max-h-72 overflow-auto"></ul>
+                <div class="p-2 text-center text-sm text-gray-500">
+                  <a href="{% url 'patients:notification_list' %}" class="hover:underline">View all</a>
+                </div>
+              </div>
+            </div>
+
+            <script>
+            (function() {
+              const apiUrl = '/patients/api/notifications/';
+              const toggle = document.getElementById('notif-toggle');
+              const dropdown = document.getElementById('notif-dropdown');
+              const countEl = document.getElementById('notif-count');
+              const listEl = document.getElementById('notif-list');
+              let isOpen = false;
+
+              async function fetchNotifications() {
+                try {
+                  const res = await fetch(apiUrl + '?is_read=false', {
+                    credentials: 'include',
+                    headers: { 'Accept': 'application/json' }
+                  });
+                  if (!res.ok) return;
+                  const data = await res.json();
+                  const unread = data.count;
+                  if (unread > 0) {
+                    countEl.textContent = unread;
+                    countEl.style.display = 'inline-flex';
+                  } else {
+                    countEl.style.display = 'none';
+                  }
+                  listEl.innerHTML = '';
+                  data.results.forEach(n => {
+                    const li = document.createElement('li');
+                    li.className = 'p-2 hover:bg-gray-100 cursor-pointer';
+                    li.textContent = n.message;
+                    li.onclick = () => markRead(n.id, li);
+                    listEl.appendChild(li);
+                  });
+                } catch (e) {
+                  console.error('Error fetching notifications', e);
+                }
+              }
+
+              async function markRead(id, li) {
+                try {
+                  const res = await fetch(apiUrl + id + '/', {
+                    method: 'PATCH',
+                    credentials: 'include',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ is_read: true })
+                  });
+                  if (res.ok) {
+                    li.remove();
+                    const newCount = parseInt(countEl.textContent) - 1;
+                    if (newCount > 0) countEl.textContent = newCount;
+                    else countEl.style.display = 'none';
+                  }
+                } catch (e) {
+                  console.error('Error marking notification read', e);
+                }
+              }
+
+              toggle.addEventListener('click', () => {
+                isOpen = !isOpen;
+                dropdown.classList.toggle('hidden', !isOpen);
+                if (isOpen) fetchNotifications();
+              });
+
+              // Poll every minute
+              setInterval(fetchNotifications, 60000);
+              // Initial load
+              fetchNotifications();
+            })();
+            </script>
+            {% endif %}
         </nav>
     </header>
 
-    <div id="content">
-        {% block content %}
-        {% endblock %}
-    </div>
+    <main id="content" class="p-6">
+        {% block content %}{% endblock %}
+    </main>
 
-    <footer>
+    <footer class="bg-gray-100 p-4 text-center text-sm">
         <p>© 2025 Healthcare App</p>
     </footer>
 </body>

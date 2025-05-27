@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
-from patients.models.core import Patient, Address, Contact, Insurance
+from patients.models.core import Patient, Address, Contact
 from patients.models.clinical import Condition, Allergy, Immunization
 from patients.models.encounter import Encounter, Observation, Procedure
-from patients.models.billing import Prescription
+from patients.models.billing import MedicationRequest, Insurance
 from faker import Faker
 from datetime import datetime, timedelta
 from django.utils.timezone import make_aware
@@ -96,14 +96,16 @@ class Command(BaseCommand):
                 performed_at=make_aware(fake.date_time_between(start_date='-3mo'))
             )
 
-            # Prescription
-            Prescription.objects.create(
-                patient=patient,
-                medication=fake.lexify(text='Drug-???'),
-                dosage="1 tablet",
-                start_date=datetime.today().date(),
-                end_date=datetime.today().date() + timedelta(days=7),
-                instructions="Take after meals"
+            # MedicationRequest
+            MedicationRequest.objects.create(
+            patient=patient,
+            medication_name=fake.lexify(text='Med-???'),
+            dosage_instruction="1 tablet",
+            frequency="Twice daily",
+            route="Oral",
+            start_date=datetime.today().date(),
+            end_date=datetime.today().date() + timedelta(days=7),
+            prescribing_doctor=fake.name()
             )
-
+            
         self.stdout.write(self.style.SUCCESS("✅ Seeded 100 patients with related records."))

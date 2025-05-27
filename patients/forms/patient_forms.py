@@ -1,42 +1,43 @@
 # patients/forms.py
 from django import forms
-from patients.models.core import Patient
-from patients.models.clinical import MedicalHistory, ClinicalData
-from patients.models.encounter import Appointment, FollowUp
-from patients.models.billing import Prescription
-from patients.models.documents import Document
+from patients.models.core import Patient, Address, Contact, EmergencyContact, Insurance
+
 
 class PatientForm(forms.ModelForm):
     class Meta:
         model = Patient
-        fields = ['name', 'email', 'age', 'medical_history']
+        fields = [
+            'medical_record_number',
+            'first_name',
+            'last_name',
+            'date_of_birth',
+            'gender',
+            'address',
+            'contact',
+            'emergency_contact',
+            'insurance',
+        ]
 
-class MedicalHistoryForm(forms.ModelForm):
-    class Meta:
-        model = MedicalHistory
-        fields = ['diagnoses', 'immunizations', 'allergies', 'family_history', 'surgeries']
 
-class ClinicalDataForm(forms.ModelForm):
+class AddressForm(forms.ModelForm):
     class Meta:
-        model = ClinicalData
-        fields = ['blood_pressure', 'heart_rate', 'weight', 'lab_results']  # Removed 'created_at' since it's auto-generated
+        model = Address
+        fields = ['line1', 'line2', 'city', 'state', 'postal_code', 'country']
 
-class AppointmentForm(forms.ModelForm):
-    class Meta:
-        model = Appointment
-        fields = ['doctor_name', 'appointment_date', 'reason_for_visit']
 
-class PrescriptionForm(forms.ModelForm):
+class ContactForm(forms.ModelForm):
     class Meta:
-        model = Prescription
-        fields = ['medication', 'dosage', 'start_date', 'end_date', 'instructions']
+        model = Contact
+        fields = ['phone', 'email']
 
-class DocumentForm(forms.ModelForm):
-    class Meta:
-        model = Document
-        fields = ['title', 'file']  # Modified field to match the model
 
-class FollowUpForm(forms.ModelForm):
+class EmergencyContactForm(forms.ModelForm):
     class Meta:
-        model = FollowUp
-        fields = ['follow_up_date', 'notes']
+        model = EmergencyContact
+        fields = ['name', 'relationship', 'phone']
+
+
+class InsuranceForm(forms.ModelForm):
+    class Meta:
+        model = Insurance
+        fields = ['provider', 'policy_number', 'group_number', 'valid_until']
