@@ -7,125 +7,118 @@
   <title>{% block title %}Healthcare ERP{% endblock %}</title>
 
   <!-- Bootstrap CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD"
+    crossorigin="anonymous"
+  />
 
-  {# Link to your custom CSS file if it contains base styles you want to keep AFTER Bootstrap #}
-  {# For example, if your 'patients/styles.css' or the inline styles below should override Bootstrap #}
+  <!-- FontAwesome (optional) -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
   <style>
-    /* Basic Reset & Core Styles (from your previous base_generic.html) */
-    body {
-      font-family: Arial, sans-serif; /* Your specified font */
-      line-height: 1.6;
-      margin: 0;
-      padding: 0;
-      background-color: #f4f4f4; /* Your specified background color */
-      color: #333; /* Default text color */
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    /* Your custom .container style - Bootstrap also has one. Ensure no major conflicts or choose one. */
-    /* For this example, I'll keep yours but be mindful of Bootstrap's .container behavior */
-    .container-custom { /* Renamed to avoid direct conflict for demonstration */
-      width: 90%;
-      margin: auto;
-      overflow: hidden;
-      padding: 0 20px;
-    }
-
-    /* Header (from your previous base_generic.html) */
-    header.custom-header { /* Added class to differentiate if needed */
-      background-color: #35424a;
-      color: white;
-      padding: 15px 0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    header.custom-header .container-custom { /* Use your custom container */
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    header.custom-header #logo h1 { margin: 0; font-size: 1.8em; }
-    header.custom-header #logo a { color: white; text-decoration: none; }
-    header.custom-header nav ul { padding: 0; margin: 0; list-style: none; display: flex; }
-    header.custom-header nav ul li { margin-left: 20px; }
-    header.custom-header nav ul li a { color: white; text-decoration: none; font-weight: bold; padding: 8px 15px; border-radius: 4px; transition: background-color 0.3s ease; }
-    header.custom-header nav ul li a:hover,
-    header.custom-header nav ul li a.current { background-color: #e8491d; }
-
-    .main-wrapper { flex: 1; padding: 25px 0; }
-
-    /* Footer (from your previous base_generic.html) */
-    footer.custom-footer { /* Added class */
-      background-color: #35424a;
-      color: white;
-      text-align: center;
-      padding: 20px 0;
-    }
-    footer.custom-footer p { margin: 5px 0; }
-    footer.custom-footer a { color: #e8491d; text-decoration: none; }
-    footer.custom-footer a:hover { text-decoration: underline; }
-
-    /* Your existing tab content, card, button styles from base_generic CAN GO HERE */
-    /* Or be in a separate CSS file linked AFTER Bootstrap CSS */
-    /* For example: */
-    .content-area {
-      background: #ffffff;
-      padding: 25px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      border-radius: 5px;
-    }
-     .content-area h2, .content-area h3 {
-        margin-top: 0;
-        color: #35424a;
-        border-bottom: 2px solid #e8491d;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-    }
-    /* Add other necessary styles from your previous base_generic.html here */
-
+    /* Core layout */
+    body { display:flex; flex-direction:column; min-height:100vh; margin:0; font-family:Arial,sans-serif; background:#f4f4f4; }
+    .main-wrapper { flex:1; padding:2rem 0; }
+    header.custom-header { background:#35424a; color:#fff; padding:.75rem 0; box-shadow:0 2px 4px rgba(0,0,0,.1); }
+    header.custom-header .container-custom { display:flex; align-items:center; justify-content:space-between; }
+    header .nav-link, header .dropdown-toggle { color:#fff; }
+    header .nav-link:hover, header .dropdown-toggle:hover { color:#e8491d; }
+    footer.custom-footer { background:#35424a; color:#fff; text-align:center; padding:1rem 0; }
+    footer.custom-footer a { color:#e8491d; }
   </style>
-  {% block head_extra %}{% endblock %} {# For page-specific styles #}
+
+  {% block head_extra %}{% endblock %}
 </head>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 <body>
-  <header class="custom-header"> {# Use specific class if you have custom header styling #}
-    <div class="container-custom"> {# Or use Bootstrap's container/container-fluid #}
-      <div id="logo">
-        <h1><a href="{% url 'patients:patient_list' %}">Healthcare ERP</a></h1>
-      </div>
+
+  <header class="custom-header">
+    <div class="container-custom">
+      <h1 class="h4 mb-0">
+        <a class="text-white text-decoration-none" href="{% url 'patients:patient_list' %}">
+          Healthcare ERP
+        </a>
+      </h1>
+
       <nav>
-        <ul>
-          <li><a href="{% url 'patients:patient_list' %}" class="{% if request.resolver_match.url_name == 'patient_list' %}current{% endif %}">Patients</a></li>
-          {# Add other nav links #}
+        <ul class="nav align-items-center mb-0">
+          <li class="nav-item">
+            <a
+              class="nav-link {% if request.resolver_match.url_name == 'patient_list' %}active{% endif %}"
+              href="{% url 'patients:patient_list' %}"
+            >
+              Patients
+            </a>
+          </li>
+
+          {% if request.user.is_authenticated %}
+          <li class="nav-item dropdown ms-3">
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="userMenu"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <i class="fas fa-user-circle me-1"></i>{{ request.user.username }}
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenu">
+              <li>
+                <a class="dropdown-item" href="{% url 'patients:patient_list' %}">
+                  <i class="fas fa-notes-medical me-1"></i> My Patients
+                </a>
+                <li>
+                  <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="dropdown-item">
+                      <i class="fas fa-sign-out-alt me-1"></i> Sign out
+                    </button>
+                  </form>
+                </li>
+            </ul>
+          </li>
+          {% else %}
+          <li class="nav-item ms-3">
+            <a class="btn btn-outline-light" href="{% url 'login' %}">Sign In</a>
+          </li>
+          {% endif %}
         </ul>
       </nav>
     </div>
   </header>
 
   <div class="main-wrapper">
-    {# Use Bootstrap's container for content area if desired, or your custom one #}
-    <main class="container"> {# This will now use Bootstrap's container styling #}
+    <main class="container">
       {% block content %}{% endblock %}
     </main>
   </div>
 
-  <footer class="custom-footer"> {# Use specific class if you have custom footer styling #}
-    <div class="container"> {# Bootstrap container for footer content alignment #}
+  <footer class="custom-footer">
+    <div class="container">
       <p>© {% now "Y" %} Healthcare ERP. All Rights Reserved.</p>
-      <p><a href="#">Privacy Policy</a> | <a href="#">Terms of Service</a> | <a href="#">Help/Support</a></p>
+      <p>
+        <a href="#">Privacy Policy</a> |
+        <a href="#">Terms of Service</a> |
+        <a href="#">Help/Support</a>
+      </p>
     </div>
   </footer>
 
-  <!-- Bootstrap Bundle with Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+  <!-- Bootstrap Bundle (includes Popper) -->
+  <script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+    crossorigin="anonymous"
+  ></script>
 
-  {# Your custom tab script from base_generic.html #}
-  <script>
-    // Your existing tab script can go here if it doesn't conflict
-    // or place it in a page-specific block if needed
-  </script>
-  {% block scripts_extra %}{% endblock %} {# For page-specific scripts #}
+  {% block scripts_extra %}{% endblock %}
 </body>
 </html>

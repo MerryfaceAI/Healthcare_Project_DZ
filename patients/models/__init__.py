@@ -8,4 +8,5 @@ from .imaging import *
 from .mental_health import *
 from .reporting import *
 from .scheduling import *
-from .reporting import *
+from .core import *
+from .audit_log import AuditLog

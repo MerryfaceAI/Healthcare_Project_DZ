@@ -1,5 +1,28 @@
-Homepage (if you add one): http://127.0.0.1:8000/
+# my urls.txt
 
-Patient list: http://127.0.0.1:8000/patients/
+# Django Admin
+/admin/                                        -> Admin dashboard
 
-Admin panel: http://127.0.0.1:8000/admin/
+# Patient CRUD (CBVs + FBVs)
+GET     /patients/                            -> PatientListView (view_patient)
+GET     /patients/add/                        -> PatientCreateView (add_patient)
+POST    /patients/add/                        -> PatientCreateView (add_patient)
+GET     /patients/<int:pk>/                   -> PatientDetailView (view_patient)
+GET     /patients/<int:pk>/edit/              -> PatientUpdateView (change_patient)
+POST    /patients/<int:pk>/edit/              -> PatientUpdateView (change_patient)
+POST    /patients/<int:pk>/delete/            -> PatientDeleteView (delete_patient)
+
+# API – Notifications
+GET     /patients/api/notifications/          -> list notifications (Token or Session auth)
+PATCH   /patients/api/notifications/<id>/     -> mark as read
+
+# API Documentation
+GET     /api/schema/                          -> raw OpenAPI schema
+GET     /api/docs/                            -> Swagger UI
+GET     /api/redoc/                           -> ReDoc UI
+POST    /api-token-auth/                      -> obtain DRF token
+
+# Session-based auth (for React)
+GET     /api-auth/login/                      -> login form
+POST    /api-auth/login/                      -> login submit
+POST    /api-auth/logout/                     -> logout

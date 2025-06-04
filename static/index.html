@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Patient List</title>
+  <style>
+    body { font-family: sans-serif; margin: 2rem; }
+    h1 { margin-bottom: 1rem; }
+    ul { padding-left: 1.2rem; }
+    li { margin-bottom: .5rem; }
+  </style>
+</head>
+<body>
+  <h1>Patients</h1>
+  <ul id="patient-list">
+    <li>Loading…</li>
+  </ul>
+
+  <script>
+    fetch('http://localhost:8000/patients/api/patients/', {
+      credentials: 'include'  // if your API uses cookies/session auth
+    })
+    .then(res => {
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      return res.json();
+    })
+    .then(data => {
+      const ul = document.getElementById('patient-list');
+      ul.innerHTML = '';  // clear loading text
+      if (data.results.length === 0) {
+        ul.innerHTML = '<li><em>No patients found.</em></li>';
+      } else {
+        data.results.forEach(p => {
+          const li = document.createElement('li');
+          li.textContent = `${p.first_name} ${p.last_name} (MRN: ${p.medical_record_number})`;
+          ul.appendChild(li);
+        });
+      }
+    })
+    .catch(err => {
+      document.getElementById('patient-list').innerHTML =
+        `<li style="color:red;">Error: ${err.message}</li>`;
+      console.error(err);
+    });
+  </script>
+</body>
+</html>

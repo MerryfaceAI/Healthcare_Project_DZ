@@ -1,5 +1,6 @@
-import time
-import logging
+# patients/management/commands/runapscheduler.py
+
+import time, logging
 from datetime import timedelta
 from django.core.management.base import BaseCommand
 from django.utils import timezone
@@ -7,48 +8,43 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from django_apscheduler.jobstores import DjangoJobStore
 from django_apscheduler.models import DjangoJobExecution
 
-from patients.jobs import send_appointment_reminders
-from patients.jobs import delete_old_executions
+from patients.jobs import send_appointment_reminders, delete_old_executions
 
 logger = logging.getLogger(__name__)
 
 class Command(BaseCommand):
-    help = "Starts the APScheduler with reminder and cleanup jobs."
+    help = "Starts APScheduler with reminder and cleanup jobs."
 
     def handle(self, *args, **options):
-        scheduler = BackgroundScheduler(timezone=timezone.get_current_timezone())
+        scheduler = BackgroundScheduler()
         scheduler.add_jobstore(DjangoJobStore(), "default")
 
-        # Schedule the appointment reminder job every hour to catch upcoming 24h window
+        # send reminders every day at 8 AM
         scheduler.add_job(
-            send_appointment_reminders,
-            trigger='cron',
-            hour='*',
-            minute='0',
-            id='send_appointment_reminders',
-            replace_existing=True,
-            max_instances=1,
-            coalesce=True
-        )
+        send_appointment_reminders,
+        'interval',
+        minutes=1,
+        id='send_appointment_reminders',
+        replace_existing=True,
+    )
 
-        # Schedule cleanup weekly on Sunday at midnight
+        # cleanup old executions weekly on Sunday midnight
         scheduler.add_job(
             delete_old_executions,
-            trigger='cron',
+            'cron',
             day_of_week='sun',
-            hour='0',
-            minute='0',
+            hour=0,
+            minute=0,
             id='delete_old_executions',
-            replace_existing=True
+            replace_existing=True,
         )
 
-        logger.info("Starting scheduler…")
+        self.stdout.write("Scheduler started. Ctrl+C to exit.")
         scheduler.start()
 
         try:
-            self.stdout.write(self.style.SUCCESS("Scheduler started. Press Ctrl+C to exit."))
             while True:
                 time.sleep(1)
         except (KeyboardInterrupt, SystemExit):
-            logger.info("Shutting down scheduler…")
             scheduler.shutdown()
+            logger.info("Scheduler shut down.")

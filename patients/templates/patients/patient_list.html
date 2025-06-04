@@ -16,10 +16,13 @@
     </div>
     <div class="col-md-2">
       <select name="page_size" class="form-select">
-        {% for size in [10, 25, 50, 100] %}
-          <option value="{{ size }}" {% if request.GET.page_size == size|stringformat:"s" %}selected{% endif %}>{{ size }} per page</option>
-        {% endfor %}
-      </select>
+  {% for size in page_sizes %}
+    <option value="{{ size }}"
+      {% if current_page_size == size|stringformat:"s" %}selected{% endif %}>
+      {{ size }} per page
+    </option>
+  {% endfor %}
+</select>
     </div>
     <div class="col-md-2">
       <button type="submit" class="btn btn-primary w-100">Search</button>

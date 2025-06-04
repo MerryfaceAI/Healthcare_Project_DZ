@@ -1,7 +1,5 @@
-# patients/forms.py
 from django import forms
-from patients.models.core import Patient, Address, Contact, EmergencyContact, Insurance
-
+from patients.models.core import Patient, Address, Contact, EmergencyContact
 
 class PatientForm(forms.ModelForm):
     class Meta:
@@ -15,29 +13,20 @@ class PatientForm(forms.ModelForm):
             'address',
             'contact',
             'emergency_contact',
-            'insurance',
+            # removed 'insurance' here since there's no Insurance model in core.py
         ]
-
 
 class AddressForm(forms.ModelForm):
     class Meta:
         model = Address
         fields = ['line1', 'line2', 'city', 'state', 'postal_code', 'country']
 
-
 class ContactForm(forms.ModelForm):
     class Meta:
         model = Contact
         fields = ['phone', 'email']
 
-
 class EmergencyContactForm(forms.ModelForm):
     class Meta:
         model = EmergencyContact
         fields = ['name', 'relationship', 'phone']
-
-
-class InsuranceForm(forms.ModelForm):
-    class Meta:
-        model = Insurance
-        fields = ['provider', 'policy_number', 'group_number', 'valid_until']
