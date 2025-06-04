@@ -1,105 +1,91 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Bell } from 'lucide-react';
+// my-healthcare-ui/src/components/NotificationBell.tsx
+import React, { useEffect, useState } from 'react';
+import type { Notification } from '@/types/models';
+import { apiFetch } from '@/api/apiClient';
 
-interface Notification {
-  id: number;
-  message: string;
-  is_read: boolean;
-  created_at: string;
-}
-
-export default function NotificationBell() {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+const NotificationBell: React.FC = () => {
+  const [count, setCount] = useState<number>(0);
+  const [list, setList] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
-  const bellRef = useRef<HTMLDivElement>(null);
 
-  // Poll every 30s
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const res = await fetch('/patients/api/notifications/', {
-          credentials: 'include',
-        });
-        if (res.ok) {
-          const data = await res.json();
-          setNotifications(data.results);
-        }
-      } catch (err) {
-        console.error('Fetch failed', err);
-      }
-    };
-    fetchNotifications();
-    const iv = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(iv);
-  }, []);
+  const apiUrl = '/api/notifications/';
 
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const fetchNotifications = async () => {
+    const res = await apiFetch(`${apiUrl}?is_read=false`);
+    if (!res || !res.ok) return;
+    const json = await res.json();
+    setCount(json.count);
+    setList(json.results);
+  };
 
-  const markAsRead = async (id: number) => {
-    try {
-      await fetch(`/patients/api/notifications/${id}/`, {
-        method: 'PATCH',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_read: true }),
-      });
-      setNotifications(ns =>
-        ns.map(n => (n.id === id ? { ...n, is_read: true } : n))
-      );
-    } catch (err) {
-      console.error('Mark as read failed', err);
+  const markRead = async (id: number) => {
+    const res = await apiFetch(`${apiUrl}${id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify({ is_read: true }),
+    });
+    if (res && res.ok) {
+      setList(prev => prev.filter(n => n.id !== id));
+      setCount(prev => prev - 1);
     }
   };
 
-  // Close on outside click
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (bellRef.current && !bellRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
+    fetchNotifications();
+    const iv = setInterval(fetchNotifications, 60000);
+    return () => clearInterval(iv);
   }, []);
 
   return (
-    <div className="relative inline-block" ref={bellRef}>
+    <div className="relative inline-block">
       <button
         onClick={() => setOpen(o => !o)}
-        className="p-2 hover:bg-gray-200 rounded-full relative"
+        className="relative focus:outline-none"
       >
-        <Bell className="w-6 h-6" />
-        {unreadCount > 0 && (
-          <span className="absolute top-0 right-0 -mt-1 -mr-1 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
-            {unreadCount}
+        <svg xmlns="http://www.w3.org/2000/svg"
+             className="h-6 w-6 text-gray-700"
+             fill="none"
+             viewBox="0 0 24 24"
+             stroke="currentColor">
+          <path strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 
+                   6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 
+                   3 0 11-6 0v-1m6 0H9" />
+        </svg>
+        {count > 0 && (
+          <span className="absolute -top-1 -right-1 inline-flex items-center justify-center
+                           px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-red-600 rounded-full">
+            {count}
           </span>
         )}
       </button>
-
       {open && (
-        <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded shadow-lg z-10">
-          {notifications.length > 0 ? (
-            notifications.map(n => (
-              <div
-                key={n.id}
-                onClick={() => markAsRead(n.id)}
-                className={`p-2 border-b last:border-none cursor-pointer ${
-                  n.is_read ? 'bg-gray-50' : 'bg-white'
-                } hover:bg-gray-100`}
-              >
-                <p className="text-sm">{n.message}</p>
-                <time className="text-xs text-gray-500">
-                  {new Date(n.created_at).toLocaleString()}
-                </time>
-              </div>
-            ))
-          ) : (
-            <p className="p-2 text-sm text-center text-gray-500">
-              No notifications.
-            </p>
-          )}
+        <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg overflow-hidden z-50">
+          <ul className="divide-y divide-gray-200 max-h-72 overflow-auto">
+            {list.length > 0 ? (
+              list.map(n => (
+                <li
+                  key={n.id}
+                  onClick={() => markRead(n.id)}
+                  className="p-2 hover:bg-gray-100 cursor-pointer"
+                >
+                  {n.message}
+                </li>
+              ))
+            ) : (
+              <li className="p-2 text-gray-500 text-sm">No notifications</li>
+            )}
+          </ul>
+          <div className="p-2 text-center text-sm text-gray-500">
+            <a href="http://localhost:8000/patients/" className="hover:underline">
+              Go to Patient List
+            </a>
+          </div>
         </div>
       )}
     </div>
   );
-}
+};
+
+export default NotificationBell;

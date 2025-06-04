@@ -5,7 +5,8 @@ from patients.models.clinical import Condition, Allergy, Immunization, ClinicalD
 from patients.models.encounter import Encounter, Observation
 from patients.models.scheduling import Provider, Availability, Appointment
 from patients.models.reporting import Notification
-
+from django.contrib.auth import get_user_model
+from patients.models.audit_log import AuditLog
 
 class MedicationRequestSerializer(serializers.ModelSerializer):
     class Meta:
@@ -153,3 +154,37 @@ class NotificationSerializer(serializers.ModelSerializer):
         model = Notification
         fields = ['id', 'recipient', 'appointment', 'message', 'is_read', 'created_at']
         read_only_fields = ['id', 'recipient', 'created_at']
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    groups = serializers.SerializerMethodField()
+
+    class Meta:
+        model = get_user_model()
+        fields = ['username', 'first_name', 'last_name', 'groups']
+
+    def get_groups(self, obj):
+        return [g.name for g in obj.groups.all()]
+
+class InventoryItemSerializer(serializers.Serializer):
+    # Stub fields; replace with real ones if you have them
+    id = serializers.IntegerField()
+    name = serializers.CharField()
+    stock_level = serializers.IntegerField()
+    threshold = serializers.IntegerField()
+
+class AuditLogSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)
+    content_type = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = AuditLog
+        fields = [
+            'id',
+            'timestamp',
+            'user',
+            'action',
+            'content_type',
+            'object_id',
+            'changes',
+        ]
+        read_only_fields = ['id', 'timestamp', 'user']

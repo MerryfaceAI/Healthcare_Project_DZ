@@ -1,81 +1,89 @@
-// src/App.tsx
-import React, { useState, useEffect } from 'react';
-import Login from './components/Login';
-import NotificationBell from './components/NotificationBell';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
-import './App.css';
+import React from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-// small helper to pull Django's CSRF token from cookies
-function getCookie(name: string): string | null {
-  const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-  return match ? decodeURIComponent(match[2]) : null;
-}
+import Login from "@/pages/Login";
+import Dashboard from "@/pages/Dashboard";
+import PatientList from "@/pages/PatientList";
+import PatientForm from "@/pages/PatientForm";
+import AppointmentList from "@/pages/AppointmentList";
+import AppointmentForm from "@/pages/AppointmentForm";
+import NotFound from "@/pages/NotFound";
+import Layout from "@/components/Layout";
+import PrivateRoute from "@/components/PrivateRoute";
 
 const App: React.FC = () => {
-  // null = checking, false = logged out, true = logged in
-  const [loggedIn, setLoggedIn] = useState<boolean | null>(null);
-
-  // on mount, ping a protected endpoint
-  useEffect(() => {
-    fetch('/patients/api/notifications/', {
-      credentials: 'include',
-    })
-      .then(res => setLoggedIn(res.status === 200))
-      .catch(() => setLoggedIn(false));
-  }, []);
-
-  // logout handler
-  const handleLogout = async () => {
-    await fetch('/api-auth/logout/', {
-      method: 'POST',
-      credentials: 'include',
-      headers: {
-        'X-CSRFToken': getCookie('csrftoken') || ''
-      }
-    });
-    setLoggedIn(false);
-  };
-
-  // still checking?
-  if (loggedIn === null) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <p className="text-gray-500">Checking login…</p>
-      </div>
-    );
-  }
-
-  // not logged in?
-  if (!loggedIn) {
-    return <Login onSuccess={() => setLoggedIn(true)} />;
-  }
-
-  // logged in!
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="flex items-center justify-between p-4 bg-white shadow">
-        <div className="flex items-center space-x-4">
-          <img src={viteLogo} alt="Vite logo" className="h-8" />
-          <img src={reactLogo} alt="React logo" className="h-8" />
-          <h1 className="text-xl font-semibold">Healthcare App</h1>
-        </div>
-        <div className="flex items-center space-x-4">
-          <NotificationBell />
-          <button
-            onClick={handleLogout}
-            className="px-3 py-1 border rounded hover:bg-gray-100"
-          >
-            Logout
-          </button>
-        </div>
-      </header>
+    <BrowserRouter>
+      <Routes>
+        {/* Public route: Login */}
+        <Route path="/login" element={<Login />} />
 
-      <main className="p-6">
-        <h2 className="text-lg font-medium mb-4">Welcome to your dashboard</h2>
-        {/* …your other dashboard content… */}
-      </main>
-    </div>
+        {/*
+          All authenticated routes sit under Layout. We wrap Layout in PrivateRoute,
+          which checks for a valid token in localStorage. If no token, redirect → /login.
+        */}
+        <Route
+          path="/"
+          element={
+            <PrivateRoute>
+              <Layout />
+            </PrivateRoute>
+          }
+        >
+          {/* When user goes to "/" → redirect to "/dashboard" */}
+          <Route index element={<Navigate to="dashboard" replace />} />
+
+          {/* Dashboard */}
+          <Route path="dashboard" element={<Dashboard />} />
+
+          {/* Patients: Listing and Create/Edit */}
+          <Route path="patients">
+            <Route index element={<PatientList />} />
+            <Route path="new" element={<PatientForm />} />
+            <Route
+              path=":id/edit"
+              element={<PatientForm editMode={true} />}
+            />
+          </Route>
+
+          {/* Appointments: Listing and Create/Edit */}
+          <Route path="appointments">
+            <Route index element={<AppointmentList />} />
+            <Route path="new" element={<AppointmentForm />} />
+            <Route
+              path=":id/edit"
+              element={<AppointmentForm editMode={true} />}
+            />
+          </Route>
+
+          {/* Providers (you can create a page if you like) */}
+          <Route
+            path="providers"
+            element={
+              <div className="text-center text-gray-600">
+                {/* Eventually replace this with a ProviderList page */}
+                <h2 className="text-xl font-semibold">Providers</h2>
+                <p className="mt-2">Coming soon: provider management</p>
+              </div>
+            }
+          />
+
+          {/* Notifications (you can create a page if you like) */}
+          <Route
+            path="notifications"
+            element={
+              <div className="text-center text-gray-600">
+                <h2 className="text-xl font-semibold">Notifications</h2>
+                <p className="mt-2">Coming soon: your notifications</p>
+              </div>
+            }
+          />
+
+          {/* Catch-all → 404 */}
+          <Route path="*" element={<NotFound />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 };
 

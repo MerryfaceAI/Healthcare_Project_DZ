@@ -1,11 +1,11 @@
-// src/main.tsx (or index.tsx)
-import { StrictMode } from 'react';
-import { createRoot }   from 'react-dom/client';
-import './index.css';
-import App              from './App';   // ← no “.tsx”
+// my-healthcare-ui/src/main.tsx
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import App from '@/App';
+import './index.css'; // global styles
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
+const rootEl = document.getElementById('react-bar-root');
+if (rootEl) {
+  const root = createRoot(rootEl);
+  root.render(<App />);
+}

@@ -42,6 +42,8 @@ CSRF_TRUSTED_ORIGINS = [
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
 
+LOGIN_URL = '/accounts/login/'
+LOGOUT_URL = '/accounts/logout/'
 #
 # Security hardening (can be relaxed in dev)
 #

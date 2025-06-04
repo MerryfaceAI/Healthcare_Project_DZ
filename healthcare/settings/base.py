@@ -1,3 +1,5 @@
+# healthcare/settings/base.py
+
 import os
 from pathlib import Path
 
@@ -27,6 +29,7 @@ THIRD_PARTY_APPS = [
     'drf_spectacular',
     'django_apscheduler',
     'django_extensions',
+    'django_filters',
 ]
 
 LOCAL_APPS = [
@@ -89,6 +92,7 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.AnonRateThrottle',
         'rest_framework.throttling.UserRateThrottle',
     ],
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_THROTTLE_RATES': {
         'anon': '100/day',
         'user': '1000/day',
@@ -117,10 +121,14 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     ROOT_DIR / 'static',
-    ROOT_DIR / 'my-healthcare-ui' / 'dist',
+    # Comment out the React build folder until you run `npm run build`
+    # ROOT_DIR / 'my-healthcare-ui' / 'dist',
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# DEBUG printout
 print("BASE_DIR =", BASE_DIR)
+
 #
 # Default primary key field type
 #
@@ -132,7 +140,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #
 
 LOGIN_REDIRECT_URL = '/patients/'
-LOGOUT_REDIRECT_URL = '/login/'
+LOGOUT_REDIRECT_URL = '/accounts/login/'
 
 #
 # Logging (common)
