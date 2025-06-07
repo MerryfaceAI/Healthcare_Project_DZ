@@ -49,8 +49,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ editMode = false }) =
       getAppointmentById(Number(id))
         .then((appt) => {
           setFormValues({
-            patient: appt.patient.id,
-            provider: appt.provider.id,
+            patient: appt.patient,
+            provider: appt.provider,
             appointment_date: appt.appointment_date.slice(0, 16), // yyyy-MM-DDThh:mm
             reason: appt.reason,
             status: appt.status,
@@ -107,7 +107,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ editMode = false }) =
           <label className="block text-sm font-medium">Patient</label>
           <select
             name="patient"
-            value={formValues.patient ?? ""}
+            value={typeof formValues.patient === "object" && formValues.patient !== null ? formValues.patient.id : formValues.patient ?? ""}
             onChange={handleChange}
             required
             className="mt-1 w-full border px-3 py-2 rounded"
@@ -128,7 +128,7 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ editMode = false }) =
           <label className="block text-sm font-medium">Provider</label>
           <select
             name="provider"
-            value={formValues.provider ?? ""}
+            value={typeof formValues.provider === "object" && formValues.provider !== null ? formValues.provider.id : formValues.provider ?? ""}
             onChange={handleChange}
             required
             className="mt-1 w-full border px-3 py-2 rounded"

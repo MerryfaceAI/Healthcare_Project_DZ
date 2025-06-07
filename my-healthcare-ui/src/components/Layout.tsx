@@ -1,94 +1,59 @@
-import React from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import React from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import {
+  FaTachometerAlt,
+  FaUserInjured,
+  FaCalendarAlt,
+  FaUserMd,
+  FaBell,
+  FaCog,
+  FaSignOutAlt
+} from 'react-icons/fa';
+import UserProfileCard from './UserProfileCard';
 
-/**
- * Layout wraps the entire app once the user is authenticated.
- * It renders a fixed sidebar on the left with navigation links,
- * and an <Outlet /> on the right where child routes are displayed.
- */
+const items = [
+  { to: 'dashboard', icon: <FaTachometerAlt/>, label: 'Dashboard' },
+  { to: 'patients',  icon: <FaUserInjured/>,    label: 'Patients'  },
+  { to: 'appointments', icon: <FaCalendarAlt/>, label: 'Appointments' },
+  { to: 'providers', icon: <FaUserMd/>,        label: 'Providers' },
+  { to: 'notifications', icon: <FaBell/>,      label: 'Notifications' },
+  { to: 'settings',    icon: <FaCog/>,         label: 'Settings' },
+];
+
 const Layout: React.FC = () => {
+  const nav = useNavigate();
   return (
-    <div className="min-h-screen flex">
-      {/* ===== Sidebar ===== */}
-      <aside className="w-64 bg-gray-800 text-white flex flex-col">
-        <div className="p-6 text-2xl font-bold">
-          Healthcare App
-        </div>
-
-        <nav className="flex-1 px-4 space-y-2">
-          <NavLink
-            to="/dashboard"
-            className={({ isActive }) =>
-              isActive
-                ? "block px-4 py-2 bg-gray-700 rounded"
-                : "block px-4 py-2 hover:bg-gray-700 rounded"
-            }
-          >
-            Dashboard
-          </NavLink>
-
-          <NavLink
-            to="/patients"
-            className={({ isActive }) =>
-              isActive
-                ? "block px-4 py-2 bg-gray-700 rounded"
-                : "block px-4 py-2 hover:bg-gray-700 rounded"
-            }
-          >
-            Patients
-          </NavLink>
-
-          <NavLink
-            to="/appointments"
-            className={({ isActive }) =>
-              isActive
-                ? "block px-4 py-2 bg-gray-700 rounded"
-                : "block px-4 py-2 hover:bg-gray-700 rounded"
-            }
-          >
-            Appointments
-          </NavLink>
-
-          <NavLink
-            to="/providers"
-            className={({ isActive }) =>
-              isActive
-                ? "block px-4 py-2 bg-gray-700 rounded"
-                : "block px-4 py-2 hover:bg-gray-700 rounded"
-            }
-          >
-            Providers
-          </NavLink>
-
-          <NavLink
-            to="/notifications"
-            className={({ isActive }) =>
-              isActive
-                ? "block px-4 py-2 bg-gray-700 rounded"
-                : "block px-4 py-2 hover:bg-gray-700 rounded"
-            }
-          >
-            Notifications
-          </NavLink>
+    <div className="app-container">
+      <aside className="sidebar">
+        <div className="logo">🩺</div>
+        <nav>
+          {items.map(({to,icon,label})=>(
+            <NavLink
+              key={to}
+              to={to}
+              className={({isActive})=> isActive?'active':''}
+            >
+              {icon}<span>{label}</span>
+            </NavLink>
+          ))}
         </nav>
-
-        <div className="p-4">
-          <button
-            className="w-full bg-red-600 px-4 py-2 rounded hover:bg-red-700"
-            onClick={() => {
-              localStorage.removeItem("token");
-              window.location.href = "/login";
-            }}
-          >
-            Logout
-          </button>
-        </div>
+        <button
+          className="btn-danger"
+          onClick={() => { localStorage.removeItem('token'); nav('/'); }}
+        >
+          <FaSignOutAlt/> Logout
+        </button>
       </aside>
 
-      {/* ===== Main Content Area ===== */}
-      <main className="flex-1 bg-gray-100 p-6 overflow-auto">
-        <Outlet />
-      </main>
+      <div className="main">
+        <header className="topbar">
+          <h1>Your App Name</h1>
+          <UserProfileCard mode="icon-only" />
+        </header>
+        <div style={{ padding: '1rem' }}>
+          <Outlet />
+        </div>
+      </div>
     </div>
   );
 };

@@ -9,7 +9,7 @@ export interface Provider {
 }
 
 export async function getProviders(): Promise<Provider[]> {
-  const res = await apiFetch("/providers/");
+  const res = await apiFetch("/api/providers/");
   const data = await res.json();
   return data.results ?? data;
 }

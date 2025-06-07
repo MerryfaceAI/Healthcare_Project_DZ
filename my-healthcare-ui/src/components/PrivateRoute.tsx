@@ -1,15 +1,13 @@
-import React from "react";
-import { Navigate } from "react-router-dom";
+// src/components/PrivateRoute.tsx
+import React, { useState } from 'react';
+import Login from '../pages/Login';
+import LoginModal from './LoginModal';
 
-/**
- * Checks for “token” in localStorage.
- * If missing, redirect to /login.
- * Otherwise, render children (the Layout + nested routes).
- */
 const PrivateRoute: React.FC<React.PropsWithChildren<{}>> = ({ children }) => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    return <Navigate to="/login" />;
+  const token = localStorage.getItem('token');
+  const [ok, setOk] = useState(!!token);
+  if (!ok) {
+    return <LoginModal onSuccess={() => setOk(true)} />;
   }
   return <>{children}</>;
 };

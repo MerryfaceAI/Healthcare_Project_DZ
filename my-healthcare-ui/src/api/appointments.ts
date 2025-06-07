@@ -16,14 +16,14 @@ export async function getAppointments(): Promise<Appointment[]> {
 }
 
 export async function getAppointmentById(id: number): Promise<Appointment> {
-  const res = await apiFetch(`/appointments/${id}/`);
+  const res = await apiFetch(`/api/appointments/${id}/`);
   return res.json();
 }
 
 export async function createAppointment(
   payload: Partial<Appointment>
 ): Promise<Appointment> {
-  const res = await apiFetch("/appointments/", {
+  const res = await apiFetch("/api/appointments/", {
     method: "POST",
     body: JSON.stringify(payload),
   });
@@ -34,7 +34,7 @@ export async function updateAppointment(
   id: number,
   payload: Partial<Appointment>
 ): Promise<Appointment> {
-  const res = await apiFetch(`/appointments/${id}/`, {
+  const res = await apiFetch(`/api/appointments/${id}/`, {
     method: "PUT",
     body: JSON.stringify(payload),
   });
@@ -42,7 +42,7 @@ export async function updateAppointment(
 }
 
 export async function deleteAppointment(id: number): Promise<void> {
-  const res = await apiFetch(`/appointments/${id}/`, { method: "DELETE" });
+  const res = await apiFetch(`/api/appointments/${id}/`, { method: "DELETE" });
   if (res.status !== 204 && res.status !== 200) {
     throw new Error(`Failed to delete appointment ${id}`);
   }
