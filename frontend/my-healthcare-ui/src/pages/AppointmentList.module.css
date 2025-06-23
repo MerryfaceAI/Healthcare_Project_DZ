@@ -1,0 +1,73 @@
+/* Container & Spacing */
+.container {
+  padding: 24px;
+  background: #f5f7fa;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.title {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+/* Buttons */
+.addButton {
+  background: #38a169;
+  color: #fff;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.addButton:hover {
+  background: #2f855a;
+}
+.deleteButton {
+  background: #e53e3e;
+  color: #fff;
+  padding: 4px 8px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+.deleteButton:hover {
+  background: #c53030;
+}
+
+/* Card wrapper */
+.card {
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+/* Table */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.thead {
+  background: #edf2f7;
+}
+.th, .td {
+  text-align: left;
+  padding: 8px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.trHover:hover {
+  background: #f7fafc;
+}
+
+/* Links */
+.link {
+  color: #3182ce;
+  text-decoration: none;
+}
+.link:hover {
+  text-decoration: underline;
+}

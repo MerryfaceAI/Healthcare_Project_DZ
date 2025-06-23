@@ -1,0 +1,157 @@
+/* ─── Reset & Full-Height ─── */
+html, body, #root {
+  margin: 0;
+  height: 100%;
+  font-family: sans-serif;
+}
+
+/* ─── App Layout ─── */
+.app-container {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ─── Sidebar ─── */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 64px;
+  background-color: #2d6a6d;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  transition: width .2s;
+  overflow: hidden;
+}
+.sidebar:hover { width: 240px; }
+.sidebar .logo {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+.sidebar nav {
+  flex: 1;
+  margin-top: 1rem;
+}
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  padding: .75rem;
+  text-decoration: none;
+  color: inherit;
+  transition: background .1s;
+}
+.sidebar nav a svg {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+.sidebar nav a span {
+  display: none;
+  margin-left: .75rem;
+}
+.sidebar:hover nav a span {
+  display: inline;
+}
+.sidebar nav a.active,
+.sidebar nav a:hover {
+  background-color: #26585f;
+}
+.logout {
+  padding: .75rem;
+  background: none;
+  border: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.logout svg { font-size: 1.25rem; }
+.logout span { display: none; margin-left: .75rem; }
+.sidebar:hover .logout span { display: inline; }
+
+/* ─── Main + Topbar ─── */
+.main {
+  margin-left: 64px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left .2s;
+}
+.sidebar:hover ~ .main { margin-left: 240px; }
+
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 64px; right: 0;
+  height: 64px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  z-index: 10;
+  transition: left .2s;
+}
+.sidebar:hover ~ .main .topbar {
+  left: 240px;
+}
+
+/* ─── Content Container ─── */
+.content {
+  margin-top: 64px;
+  flex: 1;
+  overflow: auto;
+  background: #f5f7fa;
+  padding: 1rem;
+}
+
+/* ─── Dashboard Grid & Cards ─── */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+.dashboard-card {
+  background: #fff;
+  border-radius: .5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 1rem;
+}
+
+/* ─── Utility Classes ─── */
+.space-y-6 > * + * { margin-top: 1.5rem; }
+
+.text-gray-600 { color: #4a5568; }
+.text-gray-500 { color: #6b7280; }
+.text-2xl       { font-size: 1.5rem; line-height: 2rem; }
+.font-bold      { font-weight: 700; }
+.text-center    { text-align: center; }
+.text-lg        { font-size: 1.125rem; line-height: 1.75rem; }
+.font-semibold  { font-weight: 600; }
+.mb-2           { margin-bottom: .5rem; }
+.text-sm        { font-size: .875rem; line-height: 1.25rem; }
+
+.divide-y { border-top: 1px solid #e5e7eb; }
+.divide-y > * { border-bottom: 1px solid #e5e7eb; }
+
+.px-2 { padding-left: .5rem; padding-right: .5rem; }
+.py-0\.5 { padding-top: .125rem; padding-bottom: .125rem; }
+.rounded-full { border-radius: 9999px; }
+.text-xs { font-size: .75rem; line-height: 1rem; }
+
+.bg-red-100   { background-color: #fee2e2; }
+.text-red-600 { color: #dc2626; }
+.bg-green-100 { background-color: #d1fae5; }
+.text-green-600 { color: #16a34a; }
+
+.hover\:bg-blue-100:hover { background-color: #bfdbfe; }
+
+/* ─── Calendar Grid Helpers ─── */
+.grid { display: grid; }
+.grid-cols-7 { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.gap-1 { gap: .25rem; }
+.p-1 { padding: .25rem; }

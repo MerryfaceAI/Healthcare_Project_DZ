@@ -1,0 +1,115 @@
+/* ─── Layout.css ─── */
+
+/* container holds sidebar + main */
+.app-container {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 64px;
+  background: #2d6a6d;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  transition: width .2s;
+  overflow: hidden;
+}
+.sidebar:hover { width: 240px; }
+
+.sidebar .logo {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.sidebar nav {
+  flex: 1;
+  margin-top: 1rem;
+}
+
+.sidebar nav a {
+  display: flex;
+  align-items: center;
+  padding: .75rem;
+  color: inherit;
+  text-decoration: none;
+  transition: background .1s;
+}
+.sidebar nav a svg {
+  font-size: 1.25rem;
+}
+.sidebar nav a span {
+  display: none;
+  margin-left: .75rem;
+}
+.sidebar:hover nav a span {
+  display: inline;
+}
+
+.sidebar nav a.active,
+.sidebar nav a:hover {
+  background: #26585f;
+}
+
+.logout {
+  padding: .75rem;
+  background: none;
+  border: none;
+  color: inherit;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+.logout svg { font-size: 1.25rem; }
+.logout span {
+  display: none;
+  margin-left: .75rem;
+}
+.sidebar:hover .logout span {
+  display: inline;
+}
+
+/* ── Main & Topbar ── */
+.main {
+  margin-left: 64px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left .2s;
+}
+.sidebar:hover ~ .main {
+  margin-left: 240px;
+}
+
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 64px; right: 0;
+  height: 64px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  z-index: 10;
+  transition: left .2s;
+}
+.sidebar:hover ~ .main .topbar {
+  left: 240px;
+}
+
+.content {
+  margin-top: 64px;
+  flex: 1;
+  overflow: auto;
+  background: #f5f7fa;
+  padding: 1rem;
+}

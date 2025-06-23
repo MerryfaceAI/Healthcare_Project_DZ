@@ -1,0 +1,104 @@
+/* ─── Dashboard.css ─── */
+
+/* overall container */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* grid of cards */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+/* basic card style */
+.dashboard-card {
+  background: #fff;
+  border-radius: .5rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  padding: 1rem;
+}
+
+/* metric labels & values */
+.label { color: #4a5568; margin: 0; }
+.value { font-size: 1.5rem; font-weight: 700; margin: .25rem 0 0; }
+
+/* profile card override */
+.profile-card {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+}
+
+/* calendar */
+.calendar-title { margin: 0 0 .5rem; font-size: 1.125rem; font-weight: 600; }
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: .25rem;
+}
+.calendar-header {
+  font-weight: 500;
+  text-align: center;
+  color: #6b7280;
+}
+.calendar-day {
+  text-align: center;
+  padding: .25rem;
+  border-radius: 9999px;
+  transition: background .2s;
+}
+.calendar-day:hover {
+  background: #bfdbfe;
+}
+
+/* charts */
+.chart-box { min-height: 160px; display: flex; align-items: center; justify-content: center; }
+.chart-label { color: #6b7280; }
+
+/* appointments */
+.appointments-card { padding: 1rem; }
+.section-title { margin: 0 0 .75rem; font-size: 1.125rem; font-weight: 600; }
+.appointments-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid #e5e7eb;
+}
+.appointment-item {
+  display: flex;
+  justify-content: space-between;
+  padding: .75rem 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+.appointment-time { margin: 0; font-weight: 500; }
+.appointment-doctor { margin: .25rem 0 0; color: #6b7280; font-size: .875rem; }
+
+/* status badges */
+.status-badge {
+  padding: .125rem .5rem;
+  border-radius: 9999px;
+  font-size: .75rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+.status-badge.upcoming {
+  background: #d1fae5;
+  color: #16a34a;
+}
+.status-badge.cancelled {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* loading state */
+.dashboard-loading {
+  color: #6b7280;
+  font-size: 1rem;
+  padding: 2rem;
+  text-align: center;
+}
